@@ -23,6 +23,7 @@ jobs:
 
     steps:
       #Step-1: Download the repo content to the runner
+      #without this the runner would not have the required project files
       - name: Check out repository
         uses: actions/checkout@v4
       
@@ -44,5 +45,4 @@ jobs:
       
       #Step-5: Build the docker image
       - name: Build Docker image
-        run: |
-          docker build -t iris-ml-api:#{{ github.sha }}
+        run: docker build -t iris-ml-api:${{ github.sha }} .
