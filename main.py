@@ -15,10 +15,18 @@ from typing import Callable
 MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:7001")
 MODEL_URI="models:/iris-classifier@champion"
 
+
 def load_mlflow_model():
     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
     model=mlflow.sklearn.load_model(MODEL_URI)
     return model
+
+class IrisInput(BaseModel):
+    sepal_length: float = Field(gt=0)
+    sepal_width: float = Field(gt=0)
+    petal_length: float = Field(gt=0)
+    petal_width: float = Field(gt=0)
+
 
 def create_app(model_loader: Callable=load_mlflow_model):
     @asynccontextmanager
@@ -45,38 +53,32 @@ def create_app(model_loader: Callable=load_mlflow_model):
         lifespan=lifespan
     )
 
+    @app.get("/")
+    def ready_to_serve():
+        return {"status": "Ready to serve"}
+
+    @app.get("/health")
+    def health_check():
+        return {"status": "healthy",
+                "model_name": "iris-classifier",
+                "model_version": model_version,
+                }
+
+    #Endpoint to make predictions with Iris Random Forest model
+    @app.post("/predict")
+    def predict(data: IrisInput):
+        features=[[
+            data.sepal_length,
+            data.sepal_width,
+            data.petal_length,
+            data.petal_width
+        ]]
+        prediction = int(model.predict(features)[0])
+        return {"prediction": prediction,
+                "class_name": ["setosa", "versicolor", "virginica"][prediction]
+                }
+
         
 
 
-#app = FastAPI(title="Iris Random Forest API")
 
-class IrisInput(BaseModel):
-    sepal_length: float = Field(gt=0)
-    sepal_width: float = Field(gt=0)
-    petal_length: float = Field(gt=0)
-    petal_width: float = Field(gt=0)
-
-@app.get("/")
-def ready_to_serve():
-    return {"status": "Ready to serve"}
-
-@app.get("/health")
-def health_check():
-    return {"status": "healthy",
-            "model_name": "iris-classifier",
-            "model_version": model_version,
-            }
-
-#Endpoint to make predictions with Iris Random Forest model
-@app.post("/predict")
-def predict(data: IrisInput):
-    features=[[
-        data.sepal_length,
-        data.sepal_width,
-        data.petal_length,
-        data.petal_width
-    ]]
-    prediction = int(model.predict(features)[0])
-    return {"prediction": prediction,
-            "class_name": ["setosa", "versicolor", "virginica"][prediction]
-            }
