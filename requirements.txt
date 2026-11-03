@@ -3,5 +3,7 @@ joblib
 fastapi
 uvicorn
 pydantic
+mlflow
+numpy
 httpx
 pytest
