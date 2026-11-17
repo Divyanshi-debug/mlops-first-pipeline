@@ -43,7 +43,7 @@ def create_app(model_loader: Callable=load_mlflow_model, version_loader:Callable
         
 
     @asynccontextmanager
-    def lifespan(app: FastAPI):
+    async def lifespan(app: FastAPI):
         try:
             app.state.model = model_loader()
         except Exception as ex:
@@ -85,6 +85,8 @@ def create_app(model_loader: Callable=load_mlflow_model, version_loader:Callable
         return {"prediction": prediction,
                 "class_name": ["setosa", "versicolor", "virginica"][prediction]
                 }
+
+    return app
 
 
 #Production application instance

@@ -32,7 +32,7 @@ def client():
 
 
 
-def test_health_endpoint():
+def test_health_endpoint(client):
     """
     Verify that the application is running and can respond to a health-check request.
     """
@@ -41,10 +41,10 @@ def test_health_endpoint():
     assert response.status_code == 200  #assert keyword checks is similar to if else in 1 line
 
     #Now check response body
-    assert response.json()["status"] == {"status": "healthy"}
-    assert response.json()["model_version"] == "test_version"
+    assert response.json()["status"] == "healthy"
+    assert response.json()["model_version"] == "test-version"
 
-def test_valid_iris_prediction():
+def test_valid_iris_prediction(client):
     """
     Verify that valid flower measurements return a valid prediction.
     """  
@@ -71,7 +71,7 @@ def test_valid_iris_prediction():
     assert result["prediction"] in [0, 1, 2]  
 
 
-def test_invalid_iris_input():
+def test_invalid_iris_input(client):
     """
     Verify that invalid inputs are rejected by FastAPI
     """
