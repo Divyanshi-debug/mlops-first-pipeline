@@ -42,7 +42,7 @@ def test_health_endpoint():
 
     #Now check response body
     assert response.json()["status"] == {"status": "healthy"}
-    assert.response.json()["model_version"]="test_version"
+    assert response.json()["model_version"] == "test_version"
 
 def test_valid_iris_prediction():
     """
